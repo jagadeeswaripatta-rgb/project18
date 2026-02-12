@@ -1,32 +1,32 @@
-name: Project18
+name: Project18 - GitOps Infra Deployment
+
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [closed]
 
 jobs:
-  terraform-plan:
+  run_on_merge:
+    name: Terraform apply
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    environment: Dev
+    environment: test
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setting up Terraform
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: AWS configure
+     
+      - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
           aws-region: ap-south-1
-
-      - name: Terraform format
-        run: terraform fmt -recursive
-
+       
       - name: Terraform init
-        run: terraform init -input=false
+        run: terraform init  -input=false
 
       - name: Terraform apply
         run: terraform apply -auto-approve -input=false
